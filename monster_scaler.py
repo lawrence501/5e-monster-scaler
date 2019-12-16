@@ -53,13 +53,6 @@ def scaleStat(oldCr, newCr, currValue, stat):
   return math.floor(STAT_SCALE[newCr][stat]*mod)
 
 if __name__ == "__main__":
-  # longVersion = False
-  # try:
-  #   if sys.argv[1] == "-l" or sys.argv[1] == "--long":
-  #     longVersion = True
-  # except IndexError:
-  #   pass
-
   STAT_SCALE = loadStatScale()
   
   while True:
