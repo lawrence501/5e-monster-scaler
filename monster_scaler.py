@@ -1,6 +1,7 @@
-import sys, csv, math
+import sys, csv, math, re
+from os import sep, path
 
-DATA_DIR = "./data/"
+DATA_DIR = path.dirname(path.realpath(sys.argv[0])) + sep + "data" + sep
 
 def loadStatScale():
   f = open(DATA_DIR + "statScale.csv", 'r')
@@ -63,21 +64,26 @@ if __name__ == "__main__":
     newCores = scaleCoreStats(currCr, newCr, currCores)
     print("Your new core stats:\nAC: %s\nHP: %s\nAB: %s" %(newCores["AC"], newCores["HP"], newCores["AB"]))
 
-    print("\nYou can now scale damage and save DCs. Enter one of the following commands: 'damage', 'DC', 'exit'.")
+    print("\nYou can now scale damage and save DCs. Enter one of the following commands: 'damage', 'DC', 'exit'.\n\t"
+          "Alternatively, you can enter the command directly followed by the value (e.g. DC15).")
     while True:  
       cmd = input("Command: ")
       if cmd == "exit":
         break
       else:
-        validCommands = ["damage", "DC"]
+        validCommands = {"damage", "DC"}
+        commandValue = None
+        match = re.match(r"([a-z]+)([0-9]+)", cmd, re.I)
+        if match:
+          cmd, commandValue = match.groups()
         try:
           assert cmd in validCommands
         except AssertionError:
           print("Invalid command.")
           continue
 
-        currValue = 0
-        while True:
+        currValue = int(commandValue)
+        while not currValue:
           try:
             currValue = int(input("Current value: "))
             break
