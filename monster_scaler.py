@@ -82,12 +82,12 @@ if __name__ == "__main__":
           print("Invalid command.")
           continue
 
-        currValue = int(commandValue)
+        currValue = commandValue
         while not currValue:
           try:
             currValue = int(input("Current value: "))
             break
           except ValueError:
             print("Current value must be an integer.\n")
-        newValue = scaleStat(currCr, newCr, currValue, cmd)
+        newValue = scaleStat(currCr, newCr, int(currValue), cmd)
         print("Your scaled %s is %i\n" %(cmd, newValue))      
