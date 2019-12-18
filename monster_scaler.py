@@ -42,10 +42,26 @@ def getCoreStats():
     except ValueError:
       print("Each stat must be an integer.\n")
   return coreStats
-  
+
+def getSecondaryStatCommand():
+  while True:
+    command = input("Command: ").lower().replace(' ', '')
+    if command == "EXIT":
+      return None
+    validCommands = {"DAMAGE", "DC"}
+    match = re.match(r"([a-z]+)([0-9]+)", command, re.I)
+    isValidCommand = match
+    if match:
+      command, commandValue = match.groups()
+      isValidCommand = command in validCommands
+    if not isValidCommand:
+      print("Invalid command, must be one of " + str(validCommands) + ", followed by a number")
+      continue
+    return command, int(commandValue)
+
 def scaleCoreStats(oldCr, newCr, currCores):
   newCores = {}
-  for stat in ["AC", "HP", "AB"]:
+  for stat in ("AC", "HP", "AB"):
     newCores[stat] = scaleStat(oldCr, newCr, currCores[stat], stat)
   return newCores
 
@@ -55,39 +71,21 @@ def scaleStat(oldCr, newCr, currValue, stat):
 
 if __name__ == "__main__":
   STAT_SCALE = loadStatScale()
-  
+
   while True:
     currCr = getCr("\nEnter the monster's current CR to begin")
     newCr = getCr("Enter the new CR to scale the monster to")
 
     currCores = getCoreStats()
     newCores = scaleCoreStats(currCr, newCr, currCores)
-    print("Your new core stats:\nAC: %s\nHP: %s\nAB: %s" %(newCores["AC"], newCores["HP"], newCores["AB"]))
+    print("Your new core stats:\nAC: %s\nHP: %s\nAB: %s" % (newCores["AC"], newCores["HP"], newCores["AB"]))
 
-    print("\nYou can now scale damage and save DCs. Enter one of the following commands: 'damage', 'DC', 'exit'.\n\t"
-          "Alternatively, you can enter the command directly followed by the value (e.g. DC15).")
-    while True:  
-      cmd = input("Command: ")
-      if cmd == "exit":
+    print("\nYou can now scale damage and save DCs. Enter one of the following commands: 'damage', 'dc', 'exit',\n\t"
+          " followed by the relevant number (e.g. DC15).")
+    while True:
+      commandTuple = getSecondaryStatCommand()
+      if commandTuple is None:
         break
-      else:
-        validCommands = {"damage", "DC"}
-        commandValue = None
-        match = re.match(r"([a-z]+)([0-9]+)", cmd, re.I)
-        if match:
-          cmd, commandValue = match.groups()
-        try:
-          assert cmd in validCommands
-        except AssertionError:
-          print("Invalid command.")
-          continue
-
-        currValue = commandValue
-        while not currValue:
-          try:
-            currValue = int(input("Current value: "))
-            break
-          except ValueError:
-            print("Current value must be an integer.\n")
-        newValue = scaleStat(currCr, newCr, int(currValue), cmd)
-        print("Your scaled %s is %i\n" %(cmd, newValue))      
+      cmd, currValue = commandTuple
+      newValue = scaleStat(currCr, newCr, currValue, cmd)
+      print("Your scaled %s is %i\n" % (cmd, newValue))
