@@ -35,7 +35,7 @@ def getCoreStats():
       coreStats = input("Enter the monster's current stats (separated by commas) in the following order.\nAC, HP, AB: ")
       coreStats = coreStats.replace(" ", "").split(",")
       assert len(coreStats) == 3
-      coreStats = {"AC": int(coreStats[0]), "HP": int(coreStats[1]), "AB": int(coreStats[2])}
+      coreStats = {"ac": int(coreStats[0]), "hp": int(coreStats[1]), "ab": int(coreStats[2])}
       break
     except AssertionError:
       print("Please enter 3 comma separated values for AC, HP, and AB (respectively).\n")
@@ -46,22 +46,22 @@ def getCoreStats():
 def getSecondaryStatCommand():
   while True:
     command = input("Command: ").lower().replace(' ', '')
-    if command == "EXIT":
+    if command == "exit":
       return None
-    validCommands = {"DAMAGE", "DC"}
+    validCommands = {"damage", "dc"}
     match = re.match(r"([a-z]+)([0-9]+)", command, re.I)
     isValidCommand = match
     if match:
       command, commandValue = match.groups()
       isValidCommand = command in validCommands
     if not isValidCommand:
-      print("Invalid command, must be one of " + str(validCommands) + ", followed by a number")
+      print("Invalid command (" + command + "), must be one of " + str(validCommands) + ", followed by a number")
       continue
     return command, int(commandValue)
 
 def scaleCoreStats(oldCr, newCr, currCores):
   newCores = {}
-  for stat in ("AC", "HP", "AB"):
+  for stat in ("ac", "hp", "ab"):
     newCores[stat] = scaleStat(oldCr, newCr, currCores[stat], stat)
   return newCores
 
@@ -78,7 +78,7 @@ if __name__ == "__main__":
 
     currCores = getCoreStats()
     newCores = scaleCoreStats(currCr, newCr, currCores)
-    print("Your new core stats:\nAC: %s\nHP: %s\nAB: %s" % (newCores["AC"], newCores["HP"], newCores["AB"]))
+    print("Your new core stats:\nAC: %s\nHP: %s\nAB: %s" % (newCores["ac"], newCores["hp"], newCores["ab"]))
 
     print("\nYou can now scale damage and save DCs. Enter one of the following commands: 'damage', 'dc', 'exit',\n\t"
           " followed by the relevant number (e.g. DC15).")
