@@ -95,7 +95,7 @@ if __name__ == "__main__":
         print("Your new core stats:\nAC: %s\nHP: %s\nAB: %s" %
               (newCores["ac"], newCores["hp"], newCores["ab"]))
 
-        print("\nYou can now scale damage and save DCs. Enter one of the following commands: 'damage', 'dc', 'exit',\n\t"
+        print("\nYou can now scale damage and save DCs. Enter one of the following commands: 'damage' (or 'dmg'), 'dc', 'exit',\n\t"
               " followed by the relevant number (e.g. DC15).")
         while True:
             commandTuple = getSecondaryStatCommand()
