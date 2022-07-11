@@ -62,6 +62,7 @@ def getSecondaryStatCommand():
         isValidCommand = match
         if match:
             command, commandValue = match.groups()
+            command = command.replace('dmg', 'damage')
             isValidCommand = command in validCommands
         if not isValidCommand:
             print("Invalid command (" + command + "), must be one of " +
