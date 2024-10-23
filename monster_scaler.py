@@ -1,6 +1,5 @@
 import sys
 import csv
-import math
 import re
 from os import sep, path
 
@@ -38,15 +37,15 @@ def getCoreStats():
     while True:
         try:
             coreStats = input(
-                "Enter the monster's current stats (separated by commas) in the following order.\nAC, HP, AB: ")
+                "Enter the monster's current stats (separated by commas) in the following order.\nArmour, HP: ")
             coreStats = coreStats.replace(" ", "").split(",")
-            assert len(coreStats) == 3
+            assert len(coreStats) == 2
             coreStats = {"ac": int(coreStats[0]), "hp": int(
-                coreStats[1]), "ab": int(coreStats[2])}
+                coreStats[1])}
             break
         except AssertionError:
             print(
-                "Please enter 3 comma separated values for AC, HP, and AB (respectively).\n")
+                "Please enter 2 comma separated values for Armour and HP (respectively).\n")
         except ValueError:
             print("Each stat must be an integer.\n")
     return coreStats
@@ -57,12 +56,13 @@ def getSecondaryStatCommand():
         command = input("Command: ").lower().replace(' ', '')
         if command == "exit":
             return None
-        validCommands = {"damage", "dc"}
+        validCommands = {"damage", "defence"}
         match = re.match(r"([a-z]+)([0-9]+)", command, re.I)
         isValidCommand = match
         if match:
             command, commandValue = match.groups()
             command = command.replace('dmg', 'damage')
+            command = command.replace('def', 'defence')
             isValidCommand = command in validCommands
         if not isValidCommand:
             print("Invalid command (" + command + "), must be one of " +
@@ -73,14 +73,19 @@ def getSecondaryStatCommand():
 
 def scaleCoreStats(oldCr, newCr, currCores):
     newCores = {}
-    for stat in ("ac", "hp", "ab"):
-        newCores[stat] = scaleStat(oldCr, newCr, currCores[stat], stat)
+    newCores["ac"] = scaleAbsoluteStat(oldCr, newCr, currCores["ac"], "ac")
+    newCores["hp"] = scalePercentageStat(oldCr, newCr, currCores["hp"], "hp")
     return newCores
 
 
-def scaleStat(oldCr, newCr, currValue, stat):
+def scalePercentageStat(oldCr, newCr, currValue, stat):
     mod = currValue/STAT_SCALE[oldCr][stat]
-    return math.floor(STAT_SCALE[newCr][stat]*mod)
+    return round(STAT_SCALE[newCr][stat]*mod)
+
+
+def scaleAbsoluteStat(oldCr, newCr, currValue, stat):
+    diff = STAT_SCALE[newCr][stat] - STAT_SCALE[oldCr][stat]
+    return round(currValue + diff)
 
 
 if __name__ == "__main__":
@@ -92,15 +97,20 @@ if __name__ == "__main__":
 
         currCores = getCoreStats()
         newCores = scaleCoreStats(currCr, newCr, currCores)
-        print("Your new core stats:\nAC: %s\nHP: %s\nAB: %s" %
-              (newCores["ac"], newCores["hp"], newCores["ab"]))
+        print("Your new core stats:\nArmour: %s\nHP: %s" %
+              (newCores["ac"], newCores["hp"]))
 
-        print("\nYou can now scale damage and save DCs. Enter one of the following commands: 'damage' (or 'dmg'), 'dc', 'exit',\n\t"
-              " followed by the relevant number (e.g. DC15).")
+        print("\nYou can now scale damage and other defences. Enter one of the following commands: 'damage' (or 'dmg'), 'defence' (or 'def'), 'exit',\n\t"
+              " followed by the relevant number (e.g. def 3).")
         while True:
             commandTuple = getSecondaryStatCommand()
             if commandTuple is None:
                 break
             cmd, currValue = commandTuple
-            newValue = scaleStat(currCr, newCr, currValue, cmd)
+            newValue = 0
+            match cmd:
+                case "damage":
+                    newValue = scalePercentageStat(currCr, newCr, currValue, cmd)
+                case "defence":
+                    newValue = scaleAbsoluteStat(currCr, newCr, currValue, cmd)
             print("Your scaled %s is %i\n" % (cmd, newValue))
